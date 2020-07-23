@@ -1,4 +1,4 @@
-library map_pannels;
+library map_panels;
 
 /// A Calculator.
 class Calculator {

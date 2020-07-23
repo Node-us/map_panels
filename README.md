@@ -1,4 +1,4 @@
-# map_pannels
+# map_panels
 
 A new Flutter package project.
 

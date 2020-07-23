@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:map_pannels/map_pannels.dart';
+import 'package:map_panels/map_panels.dart';
 
 void main() {
   test('adds one to input values', () {
