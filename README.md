@@ -1,14 +1,65 @@
 # map_panels
 
-A new Flutter package project.
+A Flutter package that you can use to create panel style map app easily.
 
-## Getting Started
+![image](https://media.giphy.com/media/mGbINGJpV4051si2Z0/giphy.gif)
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+## Usage
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+
+#### 1. Wrap your app (or screen/widget) with `MapPanelsProvider`
+```dart
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MapPanelsProvider(child: YourScreen())
+    );
+  }
+}
+```
+
+#### 2. Write your own panel
+```dart
+
+class MainPanel extends MapPanel {
+  MainPanel() : super();
+
+  @override
+  Widget panelBuilder(BuildContext context, ScrollController scrollController, MapPanelsController panelsController) {
+    return Container(child: Text('My awesome panel'));
+  }
+}
+```
+#### 3. Show your panel
+```dart
+
+class _MapPageState extends State<MapPage> {
+  @override
+  void didChangeDependencies() {
+    Timer(Duration(seconds: 1), () async {
+      MainPanel().show(context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: FlutterMap(
+        options: MapOptions(
+        center: LatLng(23.130847, 120.883967),
+        zoom: 7,
+      ),
+      layers: [
+        TileLayerOptions(
+          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          subdomains: ['a', 'b', 'c']
+        ),
+      ]
+    );
+  }
+}
+```
+
+## Credit
+This package is built with [sliding_up_panel](https://github.com/akshathjain/sliding_up_panel)
