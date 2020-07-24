@@ -89,10 +89,13 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
   LinkedHashMap<String, DisplayingPanel> get value => _panels;
 
   Function(MapPanelsController) onNewPanelCreated;
+  Function(MapPanelsController) onCurrentPanelRemoved;
+
   bool autoRestoreLastPanel;
 
   MapPanelsController({
     this.onNewPanelCreated,
+    this.onCurrentPanelRemoved,
     this.autoRestoreLastPanel = true,
   }) : super(LinkedHashMap());
 
@@ -138,22 +141,24 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
       await last.controller.animatePanelToPosition(last.lastPos);
 //      }
     }
+    Timer(Duration(milliseconds: 100), () async {
+      if (onCurrentPanelRemoved != null) onCurrentPanelRemoved(this);
+    });
     super.notifyListeners();
   }
 
   void remove(
     String key,
   ) async {
-    print('remove ${key}');
     _panels.remove(key);
     super.notifyListeners();
   }
 
   String addPanel(MapPanel panel) {
     final key = _genKey();
-    print('added panel ${key}');
 
     final widget = SlidingUpPanel(
+      key: Key(key),
       maxHeight: panel.maxHeight ??
           ui.window.physicalSize.height / ui.window.devicePixelRatio,
       minHeight: panel.minHeight ?? 0,
@@ -195,10 +200,7 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
 //        }
       }
       if (onNewPanelCreated != null) {
-        Timer(Duration(milliseconds: 5000), () async {
-          print('5');
-          onNewPanelCreated(this);
-        });
+        onNewPanelCreated(this);
       }
     });
     super.notifyListeners();
