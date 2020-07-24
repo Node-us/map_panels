@@ -60,12 +60,12 @@ abstract class MapPanel<T> {
 
   void show(BuildContext context) {
     final panelsController =
-    Provider.of<MapPanelsController>(context, listen: false);
+        Provider.of<MapPanelsController>(context, listen: false);
     key = panelsController.addPanel(this);
   }
 }
 
-class _Panel {
+class DisplayingPanel {
   String name;
   PanelController controller;
   SlidingUpPanel widget;
@@ -73,20 +73,20 @@ class _Panel {
   String key;
   dynamic data;
   double lastPos;
-  _Panel(
+  DisplayingPanel(
       {this.name,
-        this.panel,
-        this.controller,
-        this.widget,
-        this.lastPos,
-        this.key,
+      this.panel,
+      this.controller,
+      this.widget,
+      this.lastPos,
+      this.key,
 //        this.type,
-        this.data});
+      this.data});
 }
 
 class MapPanelsController extends ValueNotifier<LinkedHashMap> {
-  LinkedHashMap<String, _Panel> panels = LinkedHashMap();
-  LinkedHashMap get value => panels;
+  LinkedHashMap<String, DisplayingPanel> _panels = LinkedHashMap();
+  LinkedHashMap<String, DisplayingPanel> get value => _panels;
 
   Function(MapPanelsController) onNewPanelCreated;
   bool autoRestoreLastPanel;
@@ -94,29 +94,29 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
   MapPanelsController({
     this.onNewPanelCreated,
     this.autoRestoreLastPanel = true,
-  }) : super(LinkedHashMap()) {}
+  }) : super(LinkedHashMap());
 
   String _genKey() {
     while (true) {
       final key = Random().nextInt(1000).toString();
-      if (panels[key] == null) return key;
+      if (_panels[key] == null) return key;
     }
   }
 
   void closeCurrent() async {
-    final _Panel current = panels.entries.last.value;
+    final DisplayingPanel current = _panels.entries.last.value;
     if (current.controller.isAttached) await current.controller.close();
   }
 
   PanelController get currentController {
-    final _Panel current = panels.entries.last.value;
+    final DisplayingPanel current = _panels.entries.last.value;
     return current.controller;
   }
 
   double currentPanelPosition() {
-    final current = panels.entries.last.value.controller;
+    final current = _panels.entries.last.value.controller;
     if (!current.isAttached) return 0;
-    final panel = panels.entries.last;
+    final panel = _panels.entries.last;
     final pos = current.panelPosition;
     final max = panel.value.widget.maxHeight;
     final min = panel.value.widget.minHeight;
@@ -126,12 +126,12 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
   }
 
   void removeCurrent() async {
-    final current = panels.entries.last.value;
+    final current = _panels.entries.last.value;
     await current.controller.animatePanelToPosition(0);
 //    controllers.remove(current.key);
-    panels.remove(current.key);
-    if (panels.entries.length > 0 && autoRestoreLastPanel) {
-      final last = panels.entries.last.value;
+    _panels.remove(current.key);
+    if (_panels.entries.length > 0 && autoRestoreLastPanel) {
+      final last = _panels.entries.last.value;
 //      if (last.type == PanelType.main) {
 //        last.controller.animatePanelToSnapPoint();
 //      } else {
@@ -142,14 +142,16 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
   }
 
   void remove(
-      String key,
-      ) async {
-    panels.remove(key);
+    String key,
+  ) async {
+    print('remove ${key}');
+    _panels.remove(key);
     super.notifyListeners();
   }
 
   String addPanel(MapPanel panel) {
     final key = _genKey();
+    print('added panel ${key}');
 
     final widget = SlidingUpPanel(
       maxHeight: panel.maxHeight ??
@@ -166,9 +168,8 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
       defaultPanelState: panel.defaultPanelState,
     );
 
-    print(panel.panelsController);
     final _controller = panel.panelController;
-    panels[key] = _Panel(
+    _panels[key] = DisplayingPanel(
       widget: widget,
       name: panel.name,
       controller: panel.panelController,
@@ -177,24 +178,27 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
       panel: panel,
 //        type: type
     );
-    Timer(Duration(milliseconds: 50), () async {
+    Timer(Duration(milliseconds: 100), () async {
       if (_controller.isAttached) {
         if (panel.showAtSnapPoint == true) {
-          _controller.animatePanelToSnapPoint();
+          await _controller.animatePanelToSnapPoint();
         }
       }
-      if (onNewPanelCreated != null) {
-        onNewPanelCreated(this);
-      }
-      if (panels.entries.length > 1) {
-        final _Panel current =
-            panels.entries.elementAt(panels.entries.length - 2).value;
+      if (_panels.entries.length > 1) {
+        final DisplayingPanel current =
+            _panels.entries.elementAt(_panels.entries.length - 2).value;
         current.lastPos = current.controller.panelPosition;
         await current.controller.close();
 //        if (type == PanelType.home && current.type == PanelType.home) {
 //          controllers.remove(current.key);
 //          panels.remove(current.key);
 //        }
+      }
+      if (onNewPanelCreated != null) {
+        Timer(Duration(milliseconds: 5000), () async {
+          print('5');
+          onNewPanelCreated(this);
+        });
       }
     });
     super.notifyListeners();
@@ -228,22 +232,14 @@ class MapPanelsProviderState extends State<MapPanelsProvider> {
     // TODO: implement initState
     super.initState();
     _controller.addListener(() {
-//      print('listen panels controller');
       setState(() {});
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print('build panels');
-    var ps = (_controller?.value ?? {})
-        .values
-//            .where((p) => filter != null ? filter(p.panel) : true)
-        .map((p) => p.widget);
-//    print(ps);
-//    return Container(
-//      child: Text(ps.length.toString()),
-//    );
+    var ps = (_controller?.value ?? {}).values.map((p) => p.widget);
+
     return InheritedProvider.value(
       value: _controller,
       child: Material(
