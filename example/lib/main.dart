@@ -51,32 +51,34 @@ class ParkItem extends StatelessWidget {
   ParkItem(this.park);
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        ParkPanel(park).show(context);
-      },
-      child: Container(
-        padding: EdgeInsets.only(right: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Container(
-              width: 160,
-              height: 90,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(7),
-                image: DecorationImage(
-                    fit: BoxFit.cover, image: NetworkImage(park.imageUrl)),
+    return Material(
+      child: InkWell(
+        onTap: () {
+          ParkPanel(park).show(context);
+        },
+        child: Container(
+          padding: EdgeInsets.only(right: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                width: 160,
+                height: 90,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(7),
+                  image: DecorationImage(
+                      fit: BoxFit.cover, image: NetworkImage(park.imageUrl)),
+                ),
               ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Text(
-              park.name,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ],
+              SizedBox(
+                height: 5,
+              ),
+              Text(
+                park.name,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -210,14 +212,17 @@ class _MapPageState extends State<MapPage> {
           ...Park.taiwanParks.map(
             (park) => Marker(
                 point: park.location,
-                builder: (ctx) => GestureDetector(
-                      onTap: () {
-                        ParkPanel(park).show(context);
-                      },
-                      child: Icon(
-                        Icons.location_on,
-                        color: Colors.deepOrange,
-                        size: 28.0,
+                builder: (ctx) => Material(
+                      color: Colors.white.withOpacity(0),
+                      child: InkWell(
+                        onTap: () {
+                          ParkPanel(park).show(context);
+                        },
+                        child: Icon(
+                          Icons.location_on,
+                          color: Colors.deepOrange,
+                          size: 28.0,
+                        ),
                       ),
                     ),
                 height: 30),
