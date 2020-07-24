@@ -5,14 +5,12 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 abstract class MapPanel<T> {
   String name;
   T data;
-  Marker Function(T data) markerBuilder;
 
   double maxHeight = ui.window.physicalSize.height / ui.window.devicePixelRatio;
   double minHeight = 0;
@@ -37,11 +35,10 @@ abstract class MapPanel<T> {
   MapPanel({
     this.name,
     this.data,
-    this.markerBuilder,
     this.maxHeight,
     this.minHeight,
     this.parallaxEnabled,
-    this.snapPoint,
+    this.snapPoint = 0.5,
     this.borderRadius,
     this.onPanelClosed,
     this.onPanelSlide,
@@ -54,14 +51,13 @@ abstract class MapPanel<T> {
     _panelController = panelsController ?? PanelController();
   }
 
-  Widget panelBuilder(ScrollController scrollController);
-
-  Marker get marker => markerBuilder(data);
+  Widget panelBuilder(BuildContext context, ScrollController scrollController,
+      MapPanelsController panelsController);
 
   void show(BuildContext context) {
     final panelsController =
         Provider.of<MapPanelsController>(context, listen: false);
-    key = panelsController.addPanel(this);
+    key = panelsController.addPanel(context, this);
   }
 }
 
@@ -154,7 +150,7 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
     super.notifyListeners();
   }
 
-  String addPanel(MapPanel panel) {
+  String addPanel(BuildContext context, MapPanel panel) {
     final key = _genKey();
 
     final widget = SlidingUpPanel(
@@ -165,7 +161,8 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
       parallaxEnabled: panel.parallaxEnabled,
       parallaxOffset: panel.parallaxOffset,
       snapPoint: panel.snapPoint,
-      panelBuilder: panel.panelBuilder,
+      panelBuilder: (ScrollController scrollController) =>
+          panel.panelBuilder(context, scrollController, this),
       borderRadius: panel.borderRadius,
       onPanelClosed: panel.onPanelClosed,
       onPanelSlide: panel.onPanelSlide,

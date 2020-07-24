@@ -10,11 +10,6 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_map: ^0.9.0
-  map_controller:
-    git:
-      url: git://github.com/esp10mm/map_controller.git
-      ref: master
   sliding_up_panel:
     git:
       url: git://github.com/s0nerik/sliding_up_panel.git
