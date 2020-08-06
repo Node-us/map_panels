@@ -25,6 +25,7 @@ abstract class MapPanel<T> {
   Function(double) onPanelSlide;
   PanelState defaultPanelState = PanelState.CLOSED;
   bool showAtSnapPoint = true;
+  bool panelSnapping;
 
   MapPanelsController panelsController;
 
@@ -46,10 +47,13 @@ abstract class MapPanel<T> {
     this.showAtSnapPoint = true,
     this.panelsController,
     this.parallaxOffset,
+    this.panelSnapping = true,
     panelController,
   }) {
     _panelController = panelsController ?? PanelController();
   }
+
+  List<Widget> stackWidgets(BuildContext context) => [];
 
   Widget panelBuilder(BuildContext context, ScrollController scrollController,
       MapPanelsController panelsController);
@@ -237,7 +241,9 @@ class MapPanelsProviderState extends State<MapPanelsProvider> {
 
   @override
   Widget build(BuildContext context) {
-    var ps = (_controller?.value ?? {}).values.map((p) => p.widget);
+    List<Widget> ps = (_controller?.value ?? {}).values.map<List<Widget>>((p) => [
+      p.widget, ...(p.panel.stackWidgets != null ? p.panel.stackWidgets(context) : [])
+    ]).expand((i) => i).toList();
 
     return InheritedProvider.value(
       value: _controller,
@@ -245,7 +251,9 @@ class MapPanelsProviderState extends State<MapPanelsProvider> {
         child: Stack(
           children: <Widget>[
             child,
+
             ...ps,
+
           ],
         ),
       ),
