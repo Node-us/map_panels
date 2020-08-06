@@ -230,13 +230,20 @@ class MapPanelsProviderState extends State<MapPanelsProvider> {
 
   MapPanelsProviderState(this._controller, this.child, {this.filter});
 
+  _setState() {
+    setState(() {
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    _controller.addListener(() {
-      setState(() {});
-    });
+    _controller.addListener(_setState);
+  }
+
+  void dispose() {
+   _controller.removeListener(_setState);
   }
 
   @override
