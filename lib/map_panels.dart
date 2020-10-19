@@ -130,7 +130,9 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
 
   void removeCurrent() async {
     final current = _panels.entries.last.value;
-    await current.controller.animatePanelToPosition(0);
+	
+	//await current.controller.hide();
+   // await current.controller.animatePanelToPosition(0);
 //    controllers.remove(current.key);
     _panels.remove(current.key);
     if (_panels.entries.length > 0 && autoRestoreLastPanel) {
