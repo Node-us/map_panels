@@ -127,6 +127,9 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
 //    panel.value.minHeight;
     return (((max - min) * pos) + min) / max; //current.value.panelPosition;
   }
+  
+  double get currentPanelMaxHeight => _panels.entries.last.value.widget.maxHeight;
+  double get currentPanelMinHeight => _panels.entries.last.value.widget.minHeight;
 
   void removeCurrent() async {
     final current = _panels.entries.last.value;
