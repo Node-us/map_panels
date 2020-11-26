@@ -134,17 +134,13 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
   void removeCurrent() async {
     final current = _panels.entries.last.value;
 	
-	//await current.controller.hide();
-   // await current.controller.animatePanelToPosition(0);
-//    controllers.remove(current.key);
+
     _panels.remove(current.key);
     if (_panels.entries.length > 0 && autoRestoreLastPanel) {
       final last = _panels.entries.last.value;
-//      if (last.type == PanelType.main) {
-//        last.controller.animatePanelToSnapPoint();
-//      } else {
+
+	  if (!last.controller.isPanelShown) await last.controller.show();
       await last.controller.animatePanelToPosition(last.lastPos);
-//      }
     }
     Timer(Duration(milliseconds: 100), () async {
       if (onCurrentPanelRemoved != null) onCurrentPanelRemoved(this);
@@ -200,10 +196,7 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
             _panels.entries.elementAt(_panels.entries.length - 2).value;
         current.lastPos = current.controller.panelPosition;
         await current.controller.close();
-//        if (type == PanelType.home && current.type == PanelType.home) {
-//          controllers.remove(current.key);
-//          panels.remove(current.key);
-//        }
+
       }
       if (onNewPanelCreated != null) {
         onNewPanelCreated(this);
