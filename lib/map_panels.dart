@@ -26,6 +26,7 @@ abstract class MapPanel<T> {
   PanelState defaultPanelState = PanelState.CLOSED;
   bool showAtSnapPoint = true;
   bool panelSnapping;
+  bool isDraggable;
 
   MapPanelsController panelsController;
 
@@ -48,6 +49,7 @@ abstract class MapPanel<T> {
     this.panelsController,
     this.parallaxOffset,
     this.panelSnapping = true,
+    this.isDraggable = true,
     panelController,
   }) {
     _panelController = panelsController ?? PanelController();
@@ -171,6 +173,7 @@ class MapPanelsController extends ValueNotifier<LinkedHashMap> {
       borderRadius: panel.borderRadius,
       onPanelClosed: panel.onPanelClosed,
       onPanelSlide: panel.onPanelSlide,
+	  isDraggable: panel.isDraggable,
       controller: panel.panelController,
       defaultPanelState: panel.defaultPanelState,
     );
